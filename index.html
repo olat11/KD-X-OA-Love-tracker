@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#e85d86">
+<title>Us Tracker</title>
+<style>
+  :root { --pink:#e85d86; --bg:#fff6f8; --card:#fff; --text:#333; --muted:#888; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family:system-ui,sans-serif; background:var(--bg); color:var(--text); margin:0;
+         padding:12px 12px calc(86px + env(safe-area-inset-bottom)); }
+  .wrap { max-width:640px; margin:auto; }
+  h1 { color:var(--pink); text-align:center; font-size:24px; margin:8px 0 12px; }
+  h3 { margin-top:0; }
+  nav { position:fixed; bottom:0; left:0; right:0; display:flex; background:#fff;
+        border-top:1px solid #eee; padding-bottom:env(safe-area-inset-bottom); z-index:10; }
+  nav button { flex:1; padding:10px 2px; border:none; background:none; font-size:11px; color:var(--muted); }
+  nav button span { display:block; font-size:22px; }
+  nav button.active { color:var(--pink); font-weight:700; }
+  .card { background:var(--card); border-radius:14px; padding:16px; margin-bottom:12px; box-shadow:0 2px 8px #0001; }
+  label { display:block; margin:12px 0 4px; font-size:14px; font-weight:600; }
+  input, textarea, select { width:100%; padding:12px; border:1px solid #ddd; border-radius:10px; font:inherit; font-size:16px; }
+  textarea { min-height:80px; resize:vertical; }
+  .btn { background:var(--pink); color:#fff; border:none; padding:13px 18px; border-radius:12px; margin-top:12px;
+         font-weight:600; font-size:16px; width:100%; }
+  .btn.alt { background:#f3d5dd; color:#a03355; }
+  .icons { float:right; }
+  .icons button { background:none; border:none; font-size:18px; padding:4px 8px; color:var(--muted); }
+  .meta { color:var(--muted); font-size:13px; }
+  .stats { display:flex; gap:6px; }
+  .stat { flex:1; text-align:center; background:#fde7ed; border-radius:12px; padding:8px 2px; font-size:12px; }
+  .stat b { display:block; font-size:20px; color:var(--pink); }
+  .tag { display:inline-block; font-size:12px; padding:3px 10px; border-radius:20px; background:#e3f6e8; }
+  .tag.open { background:#fff0d6; }
+  .by { font-size:12px; background:#eee; border-radius:20px; padding:2px 8px; }
+  .bar { height:8px; background:#f3d5dd; border-radius:5px; overflow:hidden; margin:6px 0; }
+  .bar i { display:block; height:100%; background:var(--pink); }
+  .hidden { display:none; }
+  p { white-space:pre-wrap; margin:6px 0; }
+  svg { width:100%; height:90px; }
+  input[type=range] { padding:0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>💕 Us Tracker</h1>
+  <div class="card stats" id="stats"></div>
+
+  <!-- PROGRESS -->
+  <section id="progress">
+    <div class="card"><h3>Score over time</h3><div id="chart"></div></div>
+    <div class="card">
+      <h3>Check-in</h3>
+      <label>Date</label><input type="date" id="p-date">
+      <label>How is the relationship feeling? <span id="p-val">7</span>/10</label>
+      <input type="range" min="1" max="10" value="7" id="p-score">
+      <label>What went well?</label><textarea id="p-good"></textarea>
+      <label>What could improve?</label><textarea id="p-improve"></textarea>
+      <button class="btn" onclick="addProgress()">Save check-in</button>
+    </div>
+    <div id="p-list"></div>
+  </section>
+
+  <!-- ARGUMENTS -->
+  <section id="arguments" class="hidden">
+    <div class="card">
+      <h3>Reflect on an argument</h3>
+      <label>Date</label><input type="date" id="a-date">
+      <label>What was it about?</label><input id="a-topic" placeholder="e.g. chores, plans, communication">
+      <label>What happened?</label><textarea id="a-what"></textarea>
+      <label>How did I feel?</label><textarea id="a-feel"></textarea>
+      <label>What did I need? What might they have needed?</label><textarea id="a-need"></textarea>
+      <label>My part in it</label><textarea id="a-mine"></textarea>
+      <label>What would I do differently?</label><textarea id="a-diff"></textarea>
+      <label>Status</label>
+      <select id="a-status"><option value="open">Still unresolved</option><option value="resolved">Resolved</option></select>
+      <label>How we resolved it / next step</label><textarea id="a-res"></textarea>
+      <button class="btn" onclick="addArg()">Save reflection</button>
+    </div>
+    <div id="a-list"></div>
+  </section>
+
+  <!-- MILESTONES -->
+  <section id="milestones" class="hidden">
+    <div class="card">
+      <h3>Add a milestone</h3>
+      <label>Date</label><input type="date" id="m-date">
+      <label>Title</label><input id="m-title" placeholder="e.g. First trip together">
+      <label>Notes</label><textarea id="m-note"></textarea>
+      <button class="btn" onclick="addMile()">Add milestone</button>
+    </div>
+    <div id="m-list"></div>
+  </section>
+
+  <!-- SHARE -->
+  <section id="share" class="hidden">
+    <div class="card">
+      <h3>Your name</h3>
+      <p class="meta">Shown on entries you create, so you can tell whose is whose after merging.</p>
+      <input id="me" placeholder="e.g. Alex" oninput="setMe(this.value)">
+    </div>
+    <div class="card">
+      <h3>Send to partner</h3>
+      <p class="meta">Exports everything as a file. Your partner imports it and entries merge with no duplicates.</p>
+      <button class="btn" onclick="exportFile()">📤 Export / back up</button>
+      <label>Import a file from your partner</label>
+      <input type="file" id="imp" accept=".json,application/json" onchange="importFile(this)">
+    </div>
+    <div class="card">
+      <h3>Privacy</h3>
+      <p class="meta">Data is stored only in this phone's browser. Clearing browser data erases it, so export a backup now and then. Use the 📤 on any single entry to share just that one.</p>
+    </div>
+  </section>
+</div>
+
+<nav id="nav">
+  <button data-tab="progress" class="active"><span>📈</span>Progress</button>
+  <button data-tab="arguments"><span>💬</span>Arguments</button>
+  <button data-tab="milestones"><span>🎉</span>Milestones</button>
+  <button data-tab="share"><span>🔗</span>Share</button>
+</nav>
+
+<script>
+const KEY = "relTracker.v2";
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+let db;
+try { db = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem("relTracker.v1") || "null"); } catch(e) {}
+db = db || {};
+db.me = db.me || ""; db.progress = db.progress || []; db.args = db.args || []; db.miles = db.miles || [];
+["progress","args","miles"].forEach(t => db[t].forEach(x => { if (!x.id) x.id = uid(); }));
+
+const $ = id => document.getElementById(id);
+const save = () => { localStorage.setItem(KEY, JSON.stringify(db)); render(); };
+const esc = s => (s||"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const today = new Date().toISOString().slice(0,10);
+["p-date","a-date","m-date"].forEach(i => $(i).value = today);
+$("me").value = db.me;
+function setMe(v) { db.me = v; localStorage.setItem(KEY, JSON.stringify(db)); }
+
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.remove("active"));
+  b.classList.add("active");
+  ["progress","arguments","milestones","share"].forEach(t => $(t).classList.toggle("hidden", t !== b.dataset.tab));
+  window.scrollTo(0,0);
+});
+$("p-score").oninput = e => $("p-val").textContent = e.target.value;
+
+function addProgress() {
+  db.progress.push({id:uid(), by:db.me, date:$("p-date").value, score:+$("p-score").value, good:$("p-good").value, improve:$("p-improve").value});
+  $("p-good").value = $("p-improve").value = ""; save();
+}
+function addArg() {
+  if (!$("a-topic").value.trim()) return alert("Please add a topic.");
+  db.args.push({id:uid(), by:db.me, date:$("a-date").value, topic:$("a-topic").value, what:$("a-what").value, feel:$("a-feel").value,
+    need:$("a-need").value, mine:$("a-mine").value, diff:$("a-diff").value, status:$("a-status").value, res:$("a-res").value});
+  ["a-topic","a-what","a-feel","a-need","a-mine","a-diff","a-res"].forEach(i => $(i).value = ""); save();
+}
+function addMile() {
+  if (!$("m-title").value.trim()) return alert("Please add a title.");
+  db.miles.push({id:uid(), by:db.me, date:$("m-date").value, title:$("m-title").value, note:$("m-note").value});
+  $("m-title").value = $("m-note").value = ""; save();
+}
+function del(type, id) { if (confirm("Delete this entry?")) { db[type] = db[type].filter(x => x.id !== id); save(); } }
+function toggleArg(id) { const a = db.args.find(x => x.id === id); a.status = a.status === "open" ? "resolved" : "open"; save(); }
+
+function entryText(type, id) {
+  const x = db[type].find(e => e.id === id);
+  if (type === "progress") return `💕 Check-in ${x.date}: ${x.score}/10\nWent well: ${x.good||"-"}\nCould improve: ${x.improve||"-"}`;
+  if (type === "miles") return `🎉 ${x.title} (${x.date})\n${x.note||""}`;
+  return `💬 ${x.topic} (${x.date})\nWhat happened: ${x.what||"-"}\nI felt: ${x.feel||"-"}\nNeeds: ${x.need||"-"}\nMy part: ${x.mine||"-"}\nNext time: ${x.diff||"-"}\nResolution: ${x.res||"-"}`;
+}
+async function shareEntry(type, id) {
+  const text = entryText(type, id);
+  try {
+    if (navigator.share) await navigator.share({text});
+    else { await navigator.clipboard.writeText(text); alert("Copied. Paste it into a message."); }
+  } catch(e) {}
+}
+
+function exportFile() {
+  const blob = new Blob([JSON.stringify(db, null, 1)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `us-tracker-${db.me || "me"}-${today}.json`;
+  a.click();
+}
+function importFile(inp) {
+  const f = inp.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result); let n = 0;
+      ["progress","args","miles"].forEach(t => (d[t]||[]).forEach(x => {
+        if (x.id && !db[t].some(y => y.id === x.id)) { db[t].push(x); n++; }
+      }));
+      save(); alert(`Imported ${n} new entries.`);
+    } catch(e) { alert("That file couldn't be read."); }
+    inp.value = "";
+  };
+  r.readAsText(f);
+}
+
+const sorted = arr => [...arr].sort((a,b) => (b.date||"").localeCompare(a.date||""));
+const by = x => x.by ? `<span class="by">${esc(x.by)}</span>` : "";
+const icons = (t, id) => `<span class="icons"><button onclick="shareEntry('${t}','${id}')">📤</button><button onclick="del('${t}','${id}')">✕</button></span>`;
+
+function chart() {
+  const pts = sorted(db.progress).reverse();
+  if (pts.length < 2) return `<p class="meta">Add two or more check-ins to see your trend.</p>`;
+  const w = 300, h = 80, step = w / (pts.length - 1);
+  const xy = pts.map((p,i) => [i*step, h - (p.score-1)/9*h]);
+  return `<svg viewBox="-6 -6 312 92"><polyline fill="none" stroke="#e85d86" stroke-width="3" points="${xy.map(p=>p.join(",")).join(" ")}"/>
+    ${xy.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="#e85d86"/>`).join("")}</svg>`;
+}
+
+function render() {
+  const avg = db.progress.length ? (db.progress.reduce((s,p) => s+p.score,0)/db.progress.length).toFixed(1) : "–";
+  const resolved = db.args.filter(a => a.status === "resolved").length;
+  $("stats").innerHTML = `<div class="stat"><b>${avg}</b>Avg score</div><div class="stat"><b>${db.args.length}</b>Arguments</div>
+    <div class="stat"><b>${resolved}</b>Resolved</div><div class="stat"><b>${db.miles.length}</b>Milestones</div>`;
+  $("chart").innerHTML = chart();
+
+  $("p-list").innerHTML = sorted(db.progress).map(p => `<div class="card">${icons("progress",p.id)}
+    <b>${p.date}</b> — ${p.score}/10 ${by(p)}<div class="bar"><i style="width:${p.score*10}%"></i></div>
+    ${p.good ? `<p>👍 ${esc(p.good)}</p>` : ""}${p.improve ? `<p>🌱 ${esc(p.improve)}</p>` : ""}</div>`).join("");
+
+  $("a-list").innerHTML = sorted(db.args).map(a => `<div class="card">${icons("args",a.id)}
+    <b>${esc(a.topic)}</b> ${by(a)}<br><span class="meta">${a.date}</span>
+    <span class="tag ${a.status}" onclick="toggleArg('${a.id}')">${a.status === "open" ? "Unresolved" : "Resolved"}</span>
+    ${a.what ? `<p><b>What happened:</b> ${esc(a.what)}</p>` : ""}
+    ${a.feel ? `<p><b>I felt:</b> ${esc(a.feel)}</p>` : ""}
+    ${a.need ? `<p><b>Needs:</b> ${esc(a.need)}</p>` : ""}
+    ${a.mine ? `<p><b>My part:</b> ${esc(a.mine)}</p>` : ""}
+    ${a.diff ? `<p><b>Next time:</b> ${esc(a.diff)}</p>` : ""}
+    ${a.res ? `<p><b>Resolution:</b> ${esc(a.res)}</p>` : ""}</div>`).join("");
+
+  $("m-list").innerHTML = sorted(db.miles).map(m => `<div class="card">${icons("miles",m.id)}
+    <b>🎉 ${esc(m.title)}</b> ${by(m)}<br><span class="meta">${m.date}</span><p>${esc(m.note)}</p></div>`).join("");
+}
+render();
+</script>
+</body>
+</html>
