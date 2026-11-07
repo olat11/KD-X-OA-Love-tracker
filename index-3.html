@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Us">
+<meta name="theme-color" content="#7c5cff">
+<title>Us – Growth Tracker</title>
+<style>
+:root{--a:#7c5cff;--b:#ff6fa5;--bg:#f6f4ff;--card:#fff;--text:#2a2540;--muted:#8b86a3;--line:#ece8fb;--soft:#f1edff}
+@media(prefers-color-scheme:dark){:root{--bg:#14121f;--card:#1f1c30;--text:#f1eefc;--muted:#a49fbd;--line:#2f2b47;--soft:#2a2642}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+.top{background:linear-gradient(135deg,var(--a),var(--b));color:#fff;padding:calc(14px + env(safe-area-inset-top)) 18px 54px;border-radius:0 0 30px 30px}
+.top .row{display:flex;justify-content:space-between;align-items:center;max-width:640px;margin:auto}
+.top h1{font-size:22px;margin:0}
+.pill{background:#ffffff30;border:1px solid #ffffff55;color:#fff;padding:8px 12px;border-radius:30px;font-size:13px;font-weight:600}
+.wrap{max-width:640px;margin:-36px auto 0;padding:0 14px}
+section{display:none;animation:fade .3s ease}
+section.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:0 6px 24px #7c5cff14}
+.card h3{margin:0 0 8px;font-size:17px}
+.sub{color:var(--muted);font-size:13px;margin:2px 0 8px}
+label{display:block;font-weight:600;font-size:14px;margin:14px 0 6px}
+input,textarea,select{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:14px;font:inherit;font-size:16px;background:var(--card);color:var(--text)}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--a)}
+textarea{min-height:70px;resize:vertical}
+input[type=range]{padding:0;accent-color:var(--a);height:34px}
+.btn{width:100%;border:none;border-radius:16px;padding:14px;margin-top:14px;font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--a),var(--b));box-shadow:0 6px 16px #7c5cff44;transition:transform .12s}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:var(--soft);color:var(--a);box-shadow:none}
+.btn.sm{width:auto;padding:9px 14px;font-size:14px;margin:0}
+.by{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;color:#fff;background:var(--c,#999);vertical-align:middle}
+.hero{display:flex;align-items:center;gap:16px}
+.ring{width:96px;height:96px;flex:none}
+.ring text{font-weight:800;fill:var(--text)}
+.mini{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.mini span{background:var(--soft);border-radius:12px;padding:6px 10px;font-size:12px}
+.status{display:flex;gap:8px;margin-top:12px}
+.status div{flex:1;text-align:center;border-radius:14px;padding:10px 4px;font-size:13px;background:var(--soft)}
+.status .ok{background:#dcf7ec;color:#157a58;font-weight:700}
+.scale{display:flex;gap:6px;margin:10px 0 4px}
+.scale button{flex:1;border:2px solid var(--line);background:var(--card);border-radius:14px;padding:8px 0;font-size:26px;transition:all .15s;color:var(--text)}
+.scale button small{display:block;font-size:9px;color:var(--muted);margin-top:2px}
+.scale button.sel{border-color:var(--a);background:var(--soft);transform:translateY(-3px) scale(1.06);box-shadow:0 6px 14px #7c5cff33}
+.tgt .q{font-size:14px;color:var(--muted);margin:4px 0}
+.tgt h4{margin:0;font-size:16px}
+details summary{cursor:pointer;color:var(--a);font-size:13px;font-weight:600;list-style:none;margin:4px 0}
+details summary::-webkit-details-marker{display:none}
+.tip{background:var(--soft);padding:10px;border-radius:12px;font-size:13px;margin-top:6px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--text);border-radius:30px;padding:8px 12px;font-size:13px;font-weight:600}
+.chip.sel{background:var(--a);border-color:var(--a);color:#fff}
+.bar{height:10px;background:var(--soft);border-radius:8px;overflow:hidden;margin:4px 0}
+.bar i{display:block;height:100%;border-radius:8px;transition:width .6s}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0}
+.cmp b{font-size:20px}
+.note{background:var(--soft);border-radius:12px;padding:10px;font-size:13px;margin-top:8px}
+.feed{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.feed:last-child{border:none}
+.feed .ic{font-size:22px}
+.feed small{color:var(--muted);display:block}
+.empty{text-align:center;color:var(--muted);padding:18px 8px;font-size:14px}
+.row2{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.x{background:none;border:none;color:var(--muted);font-size:18px;padding:4px 8px}
+.tag{display:inline-block;font-size:12px;padding:3px 10px;border-radius:20px;background:#dcf7ec;color:#157a58;font-weight:600;border:none}
+.tag.open{background:#fff0d0;color:#9a6200}
+.pg{font-size:14px;margin:6px 0;white-space:pre-wrap}
+nav{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));max-width:616px;margin:auto;display:flex;background:var(--card);border-radius:26px;padding:6px;box-shadow:0 10px 36px #2a254033;z-index:20}
+nav button{flex:1;border:none;background:none;padding:8px 0;border-radius:20px;color:var(--muted);font-size:10px;font-weight:600}
+nav button span{display:block;font-size:21px}
+nav button.on{background:linear-gradient(135deg,var(--a),var(--b));color:#fff}
+.ov{position:fixed;inset:0;background:#0007;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.ov.hidden{display:none}
+.sheet{background:var(--card);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:26px 26px 0 0;padding:20px 18px calc(24px + env(safe-area-inset-bottom));animation:up .28s ease}
+@keyframes up{from{transform:translateY(60px);opacity:0}to{transform:none;opacity:1}}
+.sheet h2{margin:0 0 4px}
+#toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);background:#2a2540;color:#fff;padding:11px 18px;border-radius:30px;font-size:14px;opacity:0;transition:all .3s;z-index:99;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%)}
+.conf{position:fixed;top:60%;left:50%;font-size:26px;z-index:99;pointer-events:none;animation:pop 1.1s ease-out forwards}
+@keyframes pop{to{transform:translate(var(--x),var(--y)) rotate(var(--r));opacity:0}}
+.fab{position:fixed;right:20px;bottom:calc(100px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;border:none;color:#fff;font-size:28px;background:linear-gradient(135deg,var(--a),var(--b));box-shadow:0 8px 20px #7c5cff66;z-index:15;display:none}
+.seg{display:flex;gap:6px;margin-bottom:12px}
+.seg button{flex:1;border:none;background:var(--soft);color:var(--a);border-radius:12px;padding:9px;font-weight:700;font-size:13px}
+.seg button.on{background:var(--a);color:#fff}
+</style>
+</head>
+<body>
+<div class="top"><div class="row"><h1>💜 Us</h1><button class="pill" id="who" onclick="switchSheet()"></button></div></div>
+<div class="wrap">
+  <section id="home" class="on"></section>
+  <section id="rate"></section>
+  <section id="args"></section>
+  <section id="insights"></section>
+  <section id="us"></section>
+</div>
+<button class="fab" id="fab" onclick="argSheet()">＋</button>
+<nav id="nav">
+  <button data-t="home" class="on"><span>🏠</span>Home</button>
+  <button data-t="rate"><span>🎯</span>Rate</button>
+  <button data-t="args"><span>💬</span>Arguments</button>
+  <button data-t="insights"><span>📊</span>Insights</button>
+  <button data-t="us"><span>⚙️</span>Us</button>
+</nav>
+<div class="ov hidden" id="ov" onclick="if(event.target===this&&!lock)closeSheet()"><div class="sheet" id="sheet"></div></div>
+<div id="toast"></div>
+
+<script>
+const KEY="usTracker.v3";
+const $=s=>document.querySelector(s);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today=()=>ymd(new Date());
+const addDays=(s,n)=>{const d=new Date(s+"T12:00:00");d.setDate(d.getDate()+n);return ymd(d)};
+const fmt=s=>s?new Date(s+"T12:00:00").toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"}):"";
+const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;
+const f1=n=>n==null?"–":n.toFixed(1);
+const buzz=()=>{try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}};
+
+const TARGETS=[
+ {id:"defensive",emoji:"🛡️",name:"Not getting defensive",q:"How well did {w} stay open instead of getting defensive?",tip:"Pause, breathe, and ask one curious question before explaining yourself."},
+ {id:"withdraw",emoji:"🫥",name:"Staying emotionally present",q:"How well did {w} stay present instead of shutting down or pulling away?",tip:"If you need a break, say so and give a time you'll come back."},
+ {id:"passive",emoji:"🗣️",name:"Speaking up (not passive)",q:"How well did {w} speak up about needs and opinions instead of going quiet?",tip:"Try one sentence: “I feel… and I need…”."},
+ {id:"feedback",emoji:"🪞",name:"Responding to feedback",q:"How well did {w} take feedback without reacting or taking it personally?",tip:"Start with “Thank you for telling me”, then respond."},
+ {id:"listen",emoji:"👂",name:"Active listening",q:"How well did {w} listen: no interrupting, reflecting back what was heard?",tip:"Repeat back what you heard (“So you're saying…”) before you reply."},
+ {id:"selfless",emoji:"🤝",name:"Thinking of your partner first",q:"How well did {w} put their partner first instead of acting selfishly?",tip:"Before deciding, ask: “What would make this easier or better for them?”"},
+ {id:"assume",emoji:"🔍",name:"Asking, not assuming",q:"How well did {w} ask for clarity instead of assuming?",tip:"Swap the assumption for a question: “Did you mean…?”"}
+];
+const SC=[{e:"😣",l:"Struggled"},{e:"😕",l:"Slipped"},{e:"😐",l:"Okay"},{e:"🙂",l:"Good"},{e:"🤩",l:"Nailed it"}];
+const MOOD=["😞","😞","😕","😕","😐","😐","🙂","😊","😍","🥰"];
+
+let db;
+try{db=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){}
+db=db||{};
+db.setup=db.setup||false;db.me=db.me||"";db.partner=db.partner||"";db.owner=db.owner||"";db.as=db.as||"";
+["ratings","checkins","args","miles"].forEach(k=>db[k]=db[k]||[]);
+const save=()=>{localStorage.setItem(KEY,JSON.stringify(db));render()};
+let tab="home",lock=false,range=30,rateDate=today(),draft={},draftKey="",argTags=[];
+
+const names=()=>[db.me,db.partner].filter(Boolean);
+const colorOf=n=>{const s=[...names()].sort();const i=s.indexOf(n);return i===0?"hsl(330 80% 60%)":i===1?"hsl(185 70% 42%)":"#999"};
+const chip=n=>n?`<span class="by" style="--c:${colorOf(n)}">${esc(n)}</span>`:"";
+
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("show"),2200)}
+function burst(){const em=["💜","✨","🎉","💖","⭐"];for(let i=0;i<16;i++){const s=document.createElement("span");s.className="conf";s.textContent=em[i%5];s.style.setProperty("--x",(Math.random()*300-150)+"px");s.style.setProperty("--y",(-Math.random()*320-60)+"px");s.style.setProperty("--r",(Math.random()*360)+"deg");document.body.appendChild(s);setTimeout(()=>s.remove(),1200)}}
+function openSheet(h,l){lock=!!l;$("#sheet").innerHTML=h;$("#ov").classList.remove("hidden")}
+function closeSheet(){$("#ov").classList.add("hidden");lock=false}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>go(b.dataset.t));
+function go(t){tab=t;document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x.dataset.t===t));document.querySelectorAll("section").forEach(s=>s.classList.toggle("on",s.id===t));$("#fab").style.display=t==="args"?"block":"none";window.scrollTo(0,0);buzz();render()}
+
+/* ---- setup / who ---- */
+function setupSheet(){
+ openSheet(`<h2>Welcome 💜</h2><p class="sub">Set up once on each phone. Use the same two names on both phones so entries match up when you share.</p>
+ <label>Your name</label><input id="s-me" value="${esc(db.me)}" placeholder="e.g. Alex">
+ <label>Partner's name</label><input id="s-pa" value="${esc(db.partner)}" placeholder="e.g. Sam">
+ <label>Who is working on the growth targets?</label>
+ <select id="s-ow"><option value="me" ${db.owner&&db.owner===db.partner?"":"selected"}>Me</option><option value="pa" ${db.owner&&db.owner===db.partner?"selected":""}>My partner</option></select>
+ <button class="btn" onclick="saveSetup()">Let's go</button>`,!db.setup);
+}
+function saveSetup(){
+ const me=$("#s-me").value.trim(),pa=$("#s-pa").value.trim();
+ if(!me||!pa||me.toLowerCase()===pa.toLowerCase())return toast("Enter two different names");
+ const old=[db.me,db.partner],nw=[me,pa];
+ const ren=n=>{const i=old.indexOf(n);return i>=0&&old[i]?nw[i]:n};
+ if(db.setup){["ratings","checkins","args","miles"].forEach(k=>db[k].forEach(x=>{x.by=ren(x.by)}));db.ratings.forEach(r=>r.id=`${r.date}|${r.target}|${r.by}`)}
+ db.owner=$("#s-ow").value==="me"?me:pa;
+ db.as=db.setup&&db.as?ren(db.as):me;
+ db.me=me;db.partner=pa;db.setup=true;draftKey="";
+ closeSheet();save();toast("Saved ✨");
+}
+function switchSheet(){
+ if(!db.setup)return;
+ openSheet(`<h2>Who's logging?</h2><p class="sub">Every entry is stamped with this name.</p>
+ ${names().map(n=>`<button class="btn ${n===db.as?"":"ghost"}" onclick="setAs(this.dataset.n)" data-n="${esc(n)}">${n===db.as?"✓ ":""}${esc(n)}</button>`).join("")}`);
+}
+function setAs(n){db.as=n;closeSheet();draftKey="";save();toast(`Now logging as ${n}`)}
+
+/* ---- HOME ---- */
+function streak(){const ds=new Set(db.ratings.map(r=>r.date));let d=today(),n=0;if(!ds.has(d))d=addDays(d,-1);while(ds.has(d)){n++;d=addDays(d,-1)}return n}
+function ringSVG(v){const p=v==null?0:(v-1)/4,c=2*Math.PI*40;return `<svg class="ring" viewBox="0 0 100 100"><defs><linearGradient id="g"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#ff6fa5"/></linearGradient></defs><circle cx="50" cy="50" r="40" fill="none" stroke="var(--soft)" stroke-width="11"/><circle cx="50" cy="50" r="40" fill="none" stroke="url(#g)" stroke-width="11" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-p)}" transform="rotate(-90 50 50)"/><text x="50" y="57" text-anchor="middle" font-size="22">${f1(v)}</text></svg>`}
+function renderHome(){
+ const hr=new Date().getHours(),gr=hr<12?"Good morning":hr<18?"Good afternoon":"Good evening";
+ const recent=db.ratings.filter(r=>r.date>=addDays(today(),-29));
+ const overall=avg(recent.map(r=>r.score));
+ const done=n=>db.ratings.some(r=>r.date===today()&&r.by===n);
+ const mood=db.checkins.filter(c=>c.by===db.as).sort((a,b)=>a.date.localeCompare(b.date)).slice(-10);
+ const feed=[],grp={};
+ db.ratings.forEach(r=>{const k=r.date+"|"+r.by;(grp[k]=grp[k]||{date:r.date,by:r.by,s:[],ts:0});grp[k].s.push(r.score);grp[k].ts=Math.max(grp[k].ts,r.ts||0)});
+ Object.values(grp).forEach(g=>feed.push({date:g.date,ts:g.ts,by:g.by,ic:"🎯",t:`${g.by===db.owner?"Self-rated":"Rated "+esc(db.owner)} · ${g.s.length} targets · avg ${f1(avg(g.s))}`}));
+ db.checkins.forEach(c=>feed.push({date:c.date,ts:c.ts||0,by:c.by,ic:MOOD[c.score-1],t:`Relationship check-in · ${c.score}/10${c.note?" · "+esc(c.note):""}`}));
+ db.args.forEach(a=>feed.push({date:a.date,ts:a.ts||0,by:a.by,ic:"💬",t:`Reflected on: ${esc(a.topic)}`}));
+ db.miles.forEach(m=>feed.push({date:m.date,ts:m.ts||0,by:m.by,ic:"🎉",t:`Milestone: ${esc(m.title)}`}));
+ feed.sort((a,b)=>b.date.localeCompare(a.date)||b.ts-a.ts);
+ $("#home").innerHTML=`
+ <div class="card"><div class="hero">${ringSVG(overall)}<div><h3 style="margin:0">${gr}, ${esc(db.as)} 👋</h3>
+ <div class="sub">Growth score for ${esc(db.owner)} · last 30 days, out of 5</div>
+ <div class="mini"><span>🔥 ${streak()}-day streak</span><span>🎯 ${recent.length} ratings</span></div></div></div>
+ <div class="status">${names().map(n=>`<div class="${done(n)?"ok":""}">${done(n)?"✓":"○"} ${esc(n)}<br><small>${done(n)?"rated today":"not yet today"}</small></div>`).join("")}</div>
+ <button class="btn" onclick="go('rate')">Rate today's targets 🎯</button></div>
+
+ <div class="card"><h3>How's the relationship feeling?</h3>
+ <div style="text-align:center;font-size:46px" id="mo">🙂</div>
+ <input type="range" min="1" max="10" value="7" id="ms" oninput="$('#mo').textContent=MOOD[this.value-1];$('#mv').textContent=this.value">
+ <div class="sub" style="text-align:center"><b id="mv">7</b>/10</div>
+ <input id="mn" placeholder="Optional note…">
+ <button class="btn ghost" onclick="addCheckin()">Save check-in</button>
+ ${mood.length?`<div style="display:flex;gap:4px;align-items:flex-end;height:46px;margin-top:12px">${mood.map(c=>`<div style="flex:1;height:${c.score*10}%;background:linear-gradient(var(--b),var(--a));border-radius:6px"></div>`).join("")}</div><div class="sub">${esc(db.as)}'s last ${mood.length} check-ins</div>`:""}</div>
+
+ <div class="card"><div class="row2"><h3>Milestones</h3><button class="btn sm ghost" onclick="mileSheet()">＋ Add</button></div>
+ ${db.miles.length?[...db.miles].sort((a,b)=>b.date.localeCompare(a.date)).map(m=>`<div class="feed"><div class="ic">🎉</div><div style="flex:1"><b>${esc(m.title)}</b> ${chip(m.by)}<small>${fmt(m.date)}${m.note?" · "+esc(m.note):""}</small></div><button class="x" onclick="del('miles','${m.id}')">✕</button></div>`).join(""):`<div class="empty">Add your first milestone 🎉</div>`}</div>
+
+ <div class="card"><h3>Recent activity</h3>
+ ${feed.length?feed.slice(0,10).map(f=>`<div class="feed"><div class="ic">${f.ic}</div><div>${f.t} ${chip(f.by)}<small>${fmt(f.date)}</small></div></div>`).join(""):`<div class="empty">Nothing yet. Your first rating will show up here.</div>`}</div>`;
+}
+function addCheckin(){db.checkins.push({id:uid(),date:today(),score:+$("#ms").value,note:$("#mn").value.trim(),by:db.as,ts:Date.now()});save();burst();toast("Check-in saved 💜")}
+function mileSheet(){openSheet(`<h2>🎉 New milestone</h2><label>Date</label><input type="date" id="m-d" value="${today()}"><label>Title</label><input id="m-t" placeholder="e.g. Handled a tough chat calmly"><label>Notes</label><textarea id="m-n"></textarea><button class="btn" onclick="addMile()">Add milestone</button>`)}
+function addMile(){const t=$("#m-t").value.trim();if(!t)return toast("Add a title");db.miles.push({id:uid(),date:$("#m-d").value||today(),title:t,note:$("#m-n").value.trim(),by:db.as,ts:Date.now()});closeSheet();save();burst()}
+function del(k,id){if(confirm("Delete this entry?")){db[k]=db[k].filter(x=>x.id!==id);save()}}
+
+/* ---- RATE ---- */
+function loadDraft(){
+ const k=rateDate+"|"+db.as;if(k===draftKey)return;draftKey=k;draft={};
+ db.ratings.filter(r=>r.date===rateDate&&r.by===db.as).forEach(r=>draft[r.target]={score:r.score,note:r.note||""});
+}
+function renderRate(){
+ loadDraft();
+ const self=db.as===db.owner,w=self?"you":db.owner;
+ const n=Object.keys(draft).filter(k=>draft[k].score).length;
+ $("#rate").innerHTML=`<div class="card"><h3>${self?"Rate yourself":"Rate "+esc(db.owner)} ${chip(db.as)}</h3>
+ <div class="sub">${self?"Be honest. How did you do on your targets?":"Be kind and honest. How did "+esc(db.owner)+" do on their targets?"} Rating the same day again updates your answer.</div>
+ <input type="date" id="rd" value="${rateDate}" max="${today()}" onchange="rateDate=this.value||today();render()"></div>
+ ${TARGETS.map(t=>{const d=draft[t.id]||{};return `<div class="card tgt"><h4>${t.emoji} ${t.name}</h4><div class="q">${t.q.replace("{w}",esc(w))}</div>
+ <div class="scale" data-t="${t.id}">${SC.map((s,i)=>`<button class="${d.score===i+1?"sel":""}" onclick="setScore('${t.id}',${i+1})">${s.e}<small>${s.l}</small></button>`).join("")}</div>
+ <input placeholder="Optional note (what happened?)" value="${esc(d.note||"")}" oninput="setNote('${t.id}',this.value)">
+ <details><summary>💡 Tip</summary><div class="tip">${t.tip}</div></details></div>`}).join("")}
+ <button class="btn" onclick="saveRatings()">Save ${n} rating${n===1?"":"s"} 💜</button>`;
+}
+function setScore(t,s){draft[t]=draft[t]||{};draft[t].score=s;buzz();document.querySelectorAll(`.scale[data-t="${t}"] button`).forEach((b,i)=>b.classList.toggle("sel",i+1===s))}
+function setNote(t,v){draft[t]=draft[t]||{};draft[t].note=v}
+function saveRatings(){
+ const ids=Object.keys(draft).filter(k=>draft[k].score);
+ if(!ids.length)return toast("Tap an emoji to rate first");
+ ids.forEach(t=>{const id=`${rateDate}|${t}|${db.as}`;db.ratings=db.ratings.filter(r=>r.id!==id);db.ratings.push({id,date:rateDate,target:t,by:db.as,score:draft[t].score,note:(draft[t].note||"").trim(),ts:Date.now()})});
+ save();burst();toast("Ratings saved ✨");
+}
+
+/* ---- ARGUMENTS ---- */
+function argSheet(){
+ argTags=[];
+ openSheet(`<h2>💬 Reflect on an argument</h2>
+ <label>Date</label><input type="date" id="a-d" value="${today()}">
+ <label>What was it about?</label><input id="a-t" placeholder="e.g. plans, chores, a comment">
+ <label>Which targets showed up?</label><div class="chips">${TARGETS.map(t=>`<button class="chip" data-id="${t.id}" onclick="tagTog(this)">${t.emoji} ${t.name}</button>`).join("")}</div>
+ <label>What happened?</label><textarea id="a-w"></textarea>
+ <label>How did I feel?</label><textarea id="a-f"></textarea>
+ <label>My part in it</label><textarea id="a-m"></textarea>
+ <label>What would I do differently?</label><textarea id="a-x"></textarea>
+ <label>Status</label><select id="a-s"><option value="open">Still unresolved</option><option value="resolved">Resolved</option></select>
+ <label>How we resolved it / next step</label><textarea id="a-r"></textarea>
+ <button class="btn" onclick="addArg()">Save reflection</button>`);
+}
+function tagTog(b){const id=b.dataset.id;const i=argTags.indexOf(id);if(i>=0)argTags.splice(i,1);else argTags.push(id);b.classList.toggle("sel")}
+function addArg(){
+ const t=$("#a-t").value.trim();if(!t)return toast("Add a topic");
+ db.args.push({id:uid(),date:$("#a-d").value||today(),topic:t,tags:[...argTags],what:$("#a-w").value.trim(),feel:$("#a-f").value.trim(),mine:$("#a-m").value.trim(),diff:$("#a-x").value.trim(),status:$("#a-s").value,res:$("#a-r").value.trim(),by:db.as,ts:Date.now()});
+ closeSheet();save();toast("Reflection saved 💜");
+}
+function toggleArg(id){const a=db.args.find(x=>x.id===id);a.status=a.status==="open"?"resolved":"open";if(a.status==="resolved")burst();save()}
+function renderArgs(){
+ const l=[...db.args].sort((a,b)=>b.date.localeCompare(a.date)||b.ts-a.ts);
+ $("#args").innerHTML=l.length?l.map(a=>`<div class="card"><div class="row2"><div><b>${esc(a.topic)}</b> ${chip(a.by)}<div class="sub">${fmt(a.date)}</div></div><button class="x" onclick="del('args','${a.id}')">✕</button></div>
+ <button class="tag ${a.status}" onclick="toggleArg('${a.id}')">${a.status==="open"?"⏳ Unresolved (tap to resolve)":"✅ Resolved"}</button>
+ ${(a.tags&&a.tags.length)?`<div class="mini">${a.tags.map(i=>{const t=TARGETS.find(x=>x.id===i);return t?`<span>${t.emoji} ${t.name}</span>`:""}).join("")}</div>`:""}
+ <details><summary>Show details</summary>
+ ${a.what?`<div class="pg"><b>What happened:</b> ${esc(a.what)}</div>`:""}${a.feel?`<div class="pg"><b>I felt:</b> ${esc(a.feel)}</div>`:""}${a.mine?`<div class="pg"><b>My part:</b> ${esc(a.mine)}</div>`:""}${a.diff?`<div class="pg"><b>Next time:</b> ${esc(a.diff)}</div>`:""}${a.res?`<div class="pg"><b>Resolution:</b> ${esc(a.res)}</div>`:""}</details></div>`).join(""):`<div class="card"><div class="empty">No reflections yet. Tap ＋ to add one.</div></div>`;
+}
+
+/* ---- INSIGHTS ---- */
+function renderInsights(){
+ const from=range?addDays(today(),-(range-1)):"0000";
+ const rs=db.ratings.filter(r=>r.date>=from);
+ const selfR=rs.filter(r=>r.by===db.owner),parR=rs.filter(r=>r.by!==db.owner);
+ const other=names().find(n=>n!==db.owner)||"Partner";
+ const days=[...new Set(rs.map(r=>r.date))].sort();
+ const pts=days.map(d=>avg(rs.filter(r=>r.date===d).map(r=>r.score)));
+ let line="";
+ if(pts.length>=2){const w=300,h=70,st=w/(pts.length-1),xy=pts.map((v,i)=>[i*st,h-(v-1)/4*h]);
+  line=`<svg viewBox="-8 -8 316 86" style="width:100%;height:100px"><polyline fill="none" stroke="#7c5cff" stroke-width="3" stroke-linejoin="round" points="${xy.map(p=>p.join(",")).join(" ")}"/>${xy.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="#ff6fa5"/>`).join("")}</svg>`}
+ else line=`<div class="empty">Rate on two or more days to see a trend.</div>`;
+ $("#insights").innerHTML=`<div class="seg">${[[7,"7 days"],[30,"30 days"],[0,"All time"]].map(r=>`<button class="${range===r[0]?"on":""}" onclick="range=${r[0]};render()">${r[1]}</button>`).join("")}</div>
+ <div class="card"><h3>Overall trend</h3><div class="sub">Average of all ratings for ${esc(db.owner)}</div>${line}</div>
+ ${TARGETS.map(t=>{const s=avg(selfR.filter(r=>r.target===t.id).map(r=>r.score)),p=avg(parR.filter(r=>r.target===t.id).map(r=>r.score));
+  let note="Not enough ratings yet.";
+  if(s!=null&&p!=null){const g=s-p;note=Math.abs(g)<0.5?"You both see it the same way 💜":g>0?`${esc(db.owner)} rates themselves higher than ${esc(other)} does. Worth a kind chat.`:`${esc(other)} sees more progress than ${esc(db.owner)} gives themselves credit for 🌱`}
+  else if(s!=null||p!=null)note="Waiting for the other person's rating.";
+  const bar=(v,c)=>`<div class="bar"><i style="width:${v==null?0:v/5*100}%;background:${c}"></i></div>`;
+  return `<div class="card"><h4 style="margin:0 0 6px">${t.emoji} ${t.name}</h4>
+  <div class="cmp"><div><div class="sub">${esc(db.owner)} (self)</div><b>${f1(s)}</b>${bar(s,"var(--a)")}</div><div><div class="sub">${esc(other)} (partner)</div><b>${f1(p)}</b>${bar(p,"var(--b)")}</div></div>
+  <div class="note">${note}</div></div>`}).join("")}`;
+}
+
+/* ---- US ---- */
+function exportFile(){
+ const blob=new Blob([JSON.stringify(db)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`us-tracker-${db.as||"me"}-${today()}.json`;a.click();
+}
+function importFile(inp){
+ const f=inp.files[0];if(!f)return;const r=new FileReader();
+ r.onload=()=>{try{const d=JSON.parse(r.result);let n=0;
+  ["ratings","checkins","args","miles"].forEach(k=>(d[k]||[]).forEach(x=>{if(x.id&&!db[k].some(y=>y.id===x.id)){db[k].push(x);n++}}));
+  save();toast(`Imported ${n} new entries`)}catch(e){toast("Couldn't read that file")}inp.value=""};
+ r.readAsText(f);
+}
+function renderUs(){
+ $("#us").innerHTML=`<div class="card"><h3>Share with your partner</h3>
+ <div class="sub">Export your entries as a file, send it to your partner, and they import it. Entries merge with no duplicates, so you can see each other's ratings.</div>
+ <button class="btn" onclick="exportFile()">📤 Export / back up</button>
+ <label>Import your partner's file</label><input type="file" accept=".json,application/json" onchange="importFile(this)"></div>
+ <div class="card"><h3>Names</h3><div class="sub">You: ${esc(db.me)} · Partner: ${esc(db.partner)} · Working on targets: ${esc(db.owner)}</div>
+ <button class="btn ghost" onclick="setupSheet()">Edit names</button></div>
+ <div class="card"><h3>Privacy</h3><div class="sub">Everything is stored only in this phone's browser. Clearing browser data erases it, so export a backup now and then.</div></div>`;
+}
+
+function render(){
+ $("#who").textContent=db.setup?`👤 ${db.as} ▾`:"Set up";
+ renderHome();renderRate();renderArgs();renderInsights();renderUs();
+}
+render();
+if(!db.setup)setupSheet();
+</script>
+</body>
+</html>
